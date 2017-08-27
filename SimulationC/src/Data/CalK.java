@@ -2,7 +2,7 @@ package Data;
 
 public class CalK {
 	double x2, xy, sumx, sumy;
-	int n = 0;
+	public int n = 0;
 	public double k = 0, b = 0;
 
 	public CalK() {

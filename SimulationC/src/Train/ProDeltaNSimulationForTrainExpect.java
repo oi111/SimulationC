@@ -1,4 +1,4 @@
-package Test;
+package Train;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import Uti.ProduceStableDistribution;
 import cern.jet.random.StudentT;
 import cern.jet.random.engine.RandomEngine;
 
-public class ProDeltaNSimulationNewAddVLight {
+public class ProDeltaNSimulationForTrainExpect {
 	int NUM_COR = 10;
 	int NN = 3;
 	int Num = 10;
@@ -71,18 +71,24 @@ public class ProDeltaNSimulationNewAddVLight {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ProDeltaNSimulationNewAddVLight pds = new ProDeltaNSimulationNewAddVLight();
+		ProDeltaNSimulationForTrainExpect pds = new ProDeltaNSimulationForTrainExpect();
 
 		// pds.process(30, 400, 1000, 30, 10, 0.01, 0.00005, 0.00000000045,
 		// 8000000, 401, 2, 0.0001, 100000, 4000, 50,
 		// 1000, 0.00001, 1);
 
-		pds.process(Double.valueOf(args[0]), Double.valueOf(args[1]), Double.valueOf(args[2]), Double.valueOf(args[3]),
-				Double.valueOf(args[4]), Double.valueOf(args[5]), Double.valueOf(args[6]), Double.valueOf(args[7]),
-				Double.valueOf(args[8]), Integer.valueOf(args[9]), Integer.valueOf(args[10]), Double.valueOf(args[11]),
-				Double.valueOf(args[12]), Double.valueOf(args[13]), Integer.valueOf(args[14]),
-				Integer.valueOf(args[15]), Integer.valueOf(args[16]), Integer.valueOf(args[17]),
-				Double.valueOf(args[18]), Double.valueOf(args[19]));
+		// pds.process(Double.valueOf(args[0]), Double.valueOf(args[1]),
+		// Double.valueOf(args[2]), Double.valueOf(args[3]),
+		// Double.valueOf(args[4]), Double.valueOf(args[5]),
+		// Double.valueOf(args[6]), Double.valueOf(args[7]),
+		// Double.valueOf(args[8]), Integer.valueOf(args[9]),
+		// Integer.valueOf(args[10]), Double.valueOf(args[11]),
+		// Double.valueOf(args[12]), Double.valueOf(args[13]),
+		// Integer.valueOf(args[14]),
+		// Integer.valueOf(args[15]), Integer.valueOf(args[16]),
+		// Integer.valueOf(args[17]),
+		// Double.valueOf(args[18]), Double.valueOf(args[19]));
+
 	}
 
 	PosInfo[] init() {
@@ -176,6 +182,13 @@ public class ProDeltaNSimulationNewAddVLight {
 		}
 	}
 
+	void setF(TK[] a, PosInfo ap[]) {
+		for (int i = 0; i < ap.length; i++) {
+			ap[i].fout = a[i].t2;
+			ap[i].fin = a[i].t1 * ap[i].fout;
+		}
+	}
+
 	void initF(PosInfo ap[]) {
 		double g[] = { 0, 1.394993763107846E-4, 2.7685714424764445, 0.015449367040358618, 3.0439195762885527,
 				0.0017350596397439685, 21.622820373026034, 2.4235037612854265E-8 };
@@ -187,20 +200,11 @@ public class ProDeltaNSimulationNewAddVLight {
 			// ap[i].fin = ap[i].fout * Math.pow((i + 1) * DeltaX + 0.00003, 4)
 			// / Math.pow((i + 1) * DeltaX + 0.0004, 7)
 			// * Math.exp(-100 * (i + 1) * DeltaX) / 1000000 / 3;
-			// ap[i].fout = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i +
-			// 1) * DeltaX + g[1], 1)
-			// / Math.pow((i + 1) * DeltaX + g[5], 1.1) / 1.2 * SigmaK;
-			// ap[i].fin = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i + 1)
-			// * DeltaX + g[1], g[2])
-			// * Math.pow((i + 1) * DeltaX + g[3], g[4]) / Math.pow((i + 1) *
-			// DeltaX + g[5], g[2] + g[4] + 3)
-			// * g[7] * ap[i].fout;
-			ap[i].fout = Math.exp(-g[6] * i * DeltaX) * Math.pow(i * DeltaX + g[1], 1)
-					/ Math.pow(i * DeltaX + g[5], 1.1) / 1.2 * SigmaK;
-			ap[i].fin = Math.exp(-g[6] * i * DeltaX) * Math.pow(i * DeltaX + g[1], g[2])
-					* Math.pow(i * DeltaX + g[3], g[4]) / Math.pow(i * DeltaX + g[5], g[2] + g[4] + 3) * g[7]
-					* ap[i].fout;
-
+			ap[i].fout = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i + 1) * DeltaX + g[1], 1)
+					/ Math.pow((i + 1) * DeltaX + g[5], 1.1) / 1.2 * SigmaK;
+			ap[i].fin = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i + 1) * DeltaX + g[1], g[2])
+					* Math.pow((i + 1) * DeltaX + g[3], g[4]) / Math.pow((i + 1) * DeltaX + g[5], g[2] + g[4] + 3)
+					* g[7] * ap[i].fout;
 			// ap[i].fout = Math.exp(-25 * (i + 1) * DeltaX) * Math.pow((i + 1)
 			// * DeltaX + 0.0001, 1)
 			// / Math.pow((i + 1) * DeltaX + 0.000515, 1.1) / 1.47 * SigmaK;
@@ -249,9 +253,6 @@ public class ProDeltaNSimulationNewAddVLight {
 			// * Math.exp(-AlphaD * i * DeltaX) * DK;
 			ap[i].d = 2.6 * Math.pow((i + 1) * DeltaX, 2) / Math.pow((i + 1) * DeltaX + 0.00001, 2)
 					* Math.exp(-AlphaD * i * DeltaX) * DK;
-			// ap[i].d = 2.6 * Math.pow(i * DeltaX, 2) / Math.pow(i * DeltaX +
-			// 0.00001, 2) * Math.exp(-AlphaD * i * DeltaX)
-			// * DK;
 			// ap[i].d = 2.6 * Math.pow((i + 1) * DeltaX, 5) / Math.pow((i + 1)
 			// * DeltaX + 0.0006, 5)
 			// * Math.exp(-AlphaD * i * DeltaX) * DK;
@@ -342,7 +343,7 @@ public class ProDeltaNSimulationNewAddVLight {
 
 	void process(double alphad, double alphain, double alphak, double alphaout, double cc, double deltat, double deltax,
 			double dk, double maxval, int nn, int num, double salpha, double sigmak, double sigmastable, int t,
-			int tmax, int tn, int ts, double vk, double vsigma) {
+			int tmax, int tn, int ts, double vk, double vsigma, TK expect[]) {
 		this.AlphaD = alphad;
 		this.AlphaIn = alphain;
 		this.AlphaOut = alphaout;
@@ -365,6 +366,8 @@ public class ProDeltaNSimulationNewAddVLight {
 		this.SigmaStable = sigmastable;
 		ap = init();
 		ap2 = init();
+		setF(expect, ap);
+		setF(expect, ap2);
 		String file = "ProDeltaNSimulationVelocity_" + "AD" + (int) AlphaD + "AI" + (int) AlphaIn + "AK" + (int) AlphaK
 				+ "AO" + (int) AlphaOut + "CC" + CC + "DK" + (int) (Math.log10(DK)) + "DT" + (int) (Math.log10(DeltaT))
 				+ "DX" + (int) (Math.log10(DeltaX)) + "MV" + MaxVal + "NN" + NN + "NUM" + Num + "T" + T + "TM" + TMax
@@ -525,6 +528,15 @@ public class ProDeltaNSimulationNewAddVLight {
 
 		ap2[ap2.length - 1].n = ap2[ap2.length - 2].n;
 		ap2[ap2.length - 1].h = ap2[ap2.length - 2].h;
+	}
+
+	double[] getOutputExpect() {
+		double ret[] = new double[ltk.size()];
+		for (int i = 0; i < ltk.size() - 1; i++) {
+			ret[i] = ltk.get(i).t2 / (ltk.get(i).t1 + 1e-8);
+		}
+		ret[ret.length - 1] = ret[ret.length - 2];
+		return ret;
 	}
 
 	double calX2(double val) {

@@ -4,17 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import Data.CalK;
 import Data.PosInfo;
 import Data.TCor;
 import Data.TK;
 import Data.Var;
+import Uti.InputFile;
 import Uti.OutputFile;
 import Uti.PdfOutput;
 import Uti.ProduceStableDistribution;
 import cern.jet.random.StudentT;
 import cern.jet.random.engine.RandomEngine;
 
-public class ProDeltaNSimulationNewAddVLight {
+public class ProDeltaNSimulationInput {
 	int NUM_COR = 10;
 	int NN = 3;
 	int Num = 10;
@@ -71,12 +73,14 @@ public class ProDeltaNSimulationNewAddVLight {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ProDeltaNSimulationNewAddVLight pds = new ProDeltaNSimulationNewAddVLight();
+		ProDeltaNSimulationInput pds = new ProDeltaNSimulationInput();
 
 		// pds.process(30, 400, 1000, 30, 10, 0.01, 0.00005, 0.00000000045,
 		// 8000000, 401, 2, 0.0001, 100000, 4000, 50,
 		// 1000, 0.00001, 1);
-
+		// pds.process(30, 400, 1000, 30, 10, 0.01, 0.00005, 0.000000001, 5000,
+		// 301, 2, 0.6, 0.003, 1, 100000, 150, 50,
+		// 5000, 0.0003, 2);
 		pds.process(Double.valueOf(args[0]), Double.valueOf(args[1]), Double.valueOf(args[2]), Double.valueOf(args[3]),
 				Double.valueOf(args[4]), Double.valueOf(args[5]), Double.valueOf(args[6]), Double.valueOf(args[7]),
 				Double.valueOf(args[8]), Integer.valueOf(args[9]), Integer.valueOf(args[10]), Double.valueOf(args[11]),
@@ -177,69 +181,20 @@ public class ProDeltaNSimulationNewAddVLight {
 	}
 
 	void initF(PosInfo ap[]) {
+		InputFile input = new InputFile();
+		input.setFileName("Expect.txt");
+		input.openFile();
 		double g[] = { 0, 1.394993763107846E-4, 2.7685714424764445, 0.015449367040358618, 3.0439195762885527,
 				0.0017350596397439685, 21.622820373026034, 2.4235037612854265E-8 };
+		String line = input.read();
+		String pt[] = line.split(" ");
 		for (int i = 0; i < ap.length; i++) {
-			// ap[i].fin = Input.Data3.a[i * 4];
-			// ap[i].fout = Input.Data3.b[i * 4];
-			// ap[i].fout = Math.exp(-AlphaOut * (i + 1) * DeltaX) * Math.pow((i
-			// + 1) * DeltaX, 0.03) * 1.24;
-			// ap[i].fin = ap[i].fout * Math.pow((i + 1) * DeltaX + 0.00003, 4)
-			// / Math.pow((i + 1) * DeltaX + 0.0004, 7)
-			// * Math.exp(-100 * (i + 1) * DeltaX) / 1000000 / 3;
-			// ap[i].fout = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i +
-			// 1) * DeltaX + g[1], 1)
-			// / Math.pow((i + 1) * DeltaX + g[5], 1.1) / 1.2 * SigmaK;
-			// ap[i].fin = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i + 1)
-			// * DeltaX + g[1], g[2])
-			// * Math.pow((i + 1) * DeltaX + g[3], g[4]) / Math.pow((i + 1) *
-			// DeltaX + g[5], g[2] + g[4] + 3)
-			// * g[7] * ap[i].fout;
 			ap[i].fout = Math.exp(-g[6] * i * DeltaX) * Math.pow(i * DeltaX + g[1], 1)
 					/ Math.pow(i * DeltaX + g[5], 1.1) / 1.2 * SigmaK;
-			ap[i].fin = Math.exp(-g[6] * i * DeltaX) * Math.pow(i * DeltaX + g[1], g[2])
-					* Math.pow(i * DeltaX + g[3], g[4]) / Math.pow(i * DeltaX + g[5], g[2] + g[4] + 3) * g[7]
-					* ap[i].fout;
+			ap[i].fin = Double.valueOf(pt[i]) * ap[i].fout;
 
-			// ap[i].fout = Math.exp(-25 * (i + 1) * DeltaX) * Math.pow((i + 1)
-			// * DeltaX + 0.0001, 1)
-			// / Math.pow((i + 1) * DeltaX + 0.000515, 1.1) / 1.47 * SigmaK;
-			// ap[i].fin = Math.exp(-100 * (i + 1) * DeltaX) * Math.pow((i + 1)
-			// * DeltaX + 0.0001, 4)
-			// / Math.pow((i + 1) * DeltaX + 0.000515, 7) * 1e-6 / 3 *
-			// ap[i].fout;
-			// System.out.print
-			// ap[i].fout = (Math.pow((i + 1) * DeltaX, 1) + 0.0003)
-			// / (Math.pow(10 * (i + 1) * DeltaX + 1, 1) * Math.pow((i + 1) *
-			// DeltaX + 0.002, 1.3)) / 3.2;
-			// ap[i].fin = ap[i].fout * (Math.pow((i + 1) * DeltaX, 1))
-			// / (Math.pow(100 * (i + 1) * DeltaX + 1, 1) * Math.pow((i + 1) *
-			// DeltaX + 0.002, 3)) * 4 * 1e-4;
-			// ap[i].fin = ap[i].fout * (Math.pow((i + 1) * DeltaX, 1))
-			// / (Math.pow(1000 * (i + 1) * DeltaX + 1, 1) * Math.pow((i + 1) *
-			// DeltaX + 0.001, 3)) * 1.5 * 1e-4;
-			// ap[i].fin = (Math.pow((i + 1) * DeltaX + 0.002, -4) * 2 * 1e-11)
-			// / ((Math.pow((i + 1) * DeltaX, -1) + 100) * 1e-5);
-			// ap[i].fout = Math.exp(-AlphaOut * (i + 1) * DeltaX) * Math.pow((i
-			// + 1) * DeltaX, 0.03) * 1.24;
-			// System.out.println(ap[i].fin + " " + ap[i].fout);
-			// ap[i].fin = Math.pow((i + 1) * DeltaX + 0.01, -4) * 1e-7;
-			// ap[i].fout = Math.pow((i + 1) * DeltaX + 0.01, -1) * 1e-2;
-			// ap[i].fin = Math.exp(-AlphaIn * (i + 1) * DeltaX) *
-			// Math.pow(DeltaX * (i + 1), 0.3) * 100;
-			// ap[i].fout = Math.exp(-AlphaOut * (i + 1) * DeltaX) *
-			// Math.pow(DeltaX * (i + 1), 0.03) * 1.24;
-			// ap[i].fin = Math.exp(-AlphaIn * (i + 1) * DeltaX) *
-			// Math.pow(DeltaX * (i + 1), 4) * 1e15;
-			// ap[i].fout = Math.exp(-AlphaOut * (i + 1) * DeltaX) * DeltaX * (i
-			// + 1) * 2500;
-			// ap[i].fin = Math.exp((-AlphaIn + AlphaK * 2 * DeltaX * (i + 1)) *
-			// (i + 1) * DeltaX)
-			// * Math.pow(DeltaX * (i + 1), 4) * 1e15;
-			// ap[i].fout = Math.exp((-AlphaOut + AlphaK * 1.8 * DeltaX * (i +
-			// 1)) * (i + 1) * DeltaX) * DeltaX * (i + 1)
-			// * 2500;
 		}
+		input.closeFile();
 	}
 
 	void initD(PosInfo ap[]) {
@@ -641,7 +596,14 @@ public class ProDeltaNSimulationNewAddVLight {
 	}
 
 	void outputPdfV() {
-		pdf_v.calLogPdf(lv);
+		TK tmp[] = pdf_v.calLogPdf2(lv);
+		CalK ck = new CalK();
+		for (int i = 0; i < tmp.length; i++)
+			if (tmp[i].t2 > 1 && tmp[i].t2 < 1000)
+				ck.add(Math.log10(tmp[i].t1), Math.log10(tmp[i].t2));
+		ck.cal();
+		pdf_v.output.write(ck.k + " " + ck.b + " " + ck.n + "\n");
+
 	}
 
 	void outputCumPdf() {

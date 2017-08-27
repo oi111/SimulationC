@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import Data.TK;
+
 public class PdfOutput {
 	int len = 10000;
 	double xmin = 0, xmax = 1000;
 	double delt;
-	OutputFile output = new OutputFile();
+	public OutputFile output = new OutputFile();
 
 	public PdfOutput() {
 		openFile("PdfOutput.txt");
@@ -154,6 +156,40 @@ public class PdfOutput {
 		output.write("\n");
 	}
 
+	public TK[] calLogPdf2(List<Double> ld) {
+		double a[] = new double[len], b[] = new double[len], tot = 0;
+		for (int i = 0; i < len; i++)
+			b[i] = a[i] = 0;
+		for (int i = 0; i < ld.size(); i++) {
+			tot++;
+			if ((int) ((Math.log10(Math.abs(ld.get(i).doubleValue())) - xmin) / delt) >= len
+					|| (int) ((Math.log10(Math.abs(ld.get(i).doubleValue())) - xmin) / delt) < 0)
+				continue;
+			if (ld.get(i).doubleValue() > 0)
+				a[(int) ((Math.log10(ld.get(i).doubleValue()) - xmin) / delt)]++;
+			if (ld.get(i).doubleValue() < 0)
+				b[(int) ((Math.log10(-ld.get(i).doubleValue()) - xmin) / delt)]++;
+		}
+		for (int i = 0; i < len; i++)
+			output.write(Math.pow(10, (xmin + (i + 1) * delt)) + " ");
+		output.write("\n");
+		for (int i = 0; i < len; i++)
+			output.write(a[i] / (tot + 0.0) / (Math.pow(10, (xmin + (i + 1) * delt)) - Math.pow(10, (xmin + i * delt)))
+					+ " ");
+		output.write("\n");
+		TK ret[] = new TK[len];
+		for (int i = 0; i < len; i++) {
+			ret[i] = new TK(0, 0);
+			ret[i].t1 = Math.pow(10, (xmin + (i + 1) * delt));
+			ret[i].t2 = a[i] / (tot + 0.0) / (Math.pow(10, (xmin + (i + 1) * delt)) - Math.pow(10, (xmin + i * delt)));
+		}
+		for (int i = 0; i < len; i++)
+			output.write(b[i] / (tot + 0.0) / (Math.pow(10, (xmin + (i + 1) * delt)) - Math.pow(10, (xmin + i * delt)))
+					+ " ");
+		output.write("\n");
+		return ret;
+	}
+
 	public void calCumLog(List<Double> ld) {
 		double a[] = new double[len], b[] = new double[len], tot = 0;
 		for (int i = 0; i < len; i++)
@@ -202,7 +238,7 @@ public class PdfOutput {
 	}
 
 	public void openFile(String file) {
-		closeFile();
+		// closeFile();
 		output.setFileName(file);
 		output.openFile();
 	}
