@@ -67,9 +67,11 @@ public class ProDeltaNSimulationInput {
 	Random gr = new Random();
 	StudentT st;
 	OutputFile output_d, output_expect, output_p, output_corpos, output_cor, output_n, output_en, output_tn, output_v,
-			output_var;
+			output_var, output_ordv;
 	PdfOutput pdf1, pdf2, pdf_v;
 	double current_v;
+	List<List<Var>> llv = new ArrayList<List<Var>>();
+	double cp[];
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -93,7 +95,7 @@ public class ProDeltaNSimulationInput {
 		PosInfo ap[] = initOther();
 		initStatic();
 		initF(ap);
-		initD(ap);
+		// initD(ap);
 		initN(ap);
 		return ap;
 	}
@@ -113,6 +115,7 @@ public class ProDeltaNSimulationInput {
 		ltc2.clear();
 		lv.clear();
 		lvar.clear();
+		llv.clear();
 		mt = new TCor[NN][NN];
 		mt2 = new TCor[NN][NN];
 		for (int i = 0; i < NN; i++) {
@@ -154,6 +157,13 @@ public class ProDeltaNSimulationInput {
 				tmp.add(new Var());
 			lvar.add(tmp);
 		}
+		for (int i = 0; i < NN; i++) {
+			List<Var> tmp = new ArrayList<Var>();
+			tmp.clear();
+			for (int j = 0; j < 200; j++)
+				tmp.add(new Var());
+			llv.add(tmp);
+		}
 	}
 
 	PosInfo[] initOther() {
@@ -186,13 +196,20 @@ public class ProDeltaNSimulationInput {
 		input.openFile();
 		double g[] = { 0, 1.394993763107846E-4, 2.7685714424764445, 0.015449367040358618, 3.0439195762885527,
 				0.0017350596397439685, 21.622820373026034, 2.4235037612854265E-8 };
-		String line = input.read();
-		String pt[] = line.split(" ");
+
+		String line1 = input.read();
+		String pt1[] = line1.split(" ");
+		String line2 = input.read();
+		String pt2[] = line2.split(" ");
+		String line3 = input.read();
+		String pt3[] = line3.split(" ");
 		for (int i = 0; i < ap.length; i++) {
 			ap[i].fout = Math.exp(-g[6] * i * DeltaX) * Math.pow(i * DeltaX + g[1], 1)
 					/ Math.pow(i * DeltaX + g[5], 1.1) / 1.2 * SigmaK;
-			ap[i].fin = Double.valueOf(pt[i]) * ap[i].fout;
-
+			// ap[i].fout = SigmaK;
+			ap[i].fout = Double.valueOf(pt2[i]);
+			ap[i].fin = Double.valueOf(pt1[i]) * ap[i].fout;
+			ap[i].d = Double.valueOf(pt3[i]);
 		}
 		input.closeFile();
 	}
@@ -268,6 +285,10 @@ public class ProDeltaNSimulationInput {
 		output_var.setFileName(file + "Var.txt");
 		output_var.openFile();
 
+		output_ordv = new OutputFile();
+		output_ordv.setFileName(file + "OrdVar.txt");
+		output_ordv.openFile();
+
 		pdf1 = new PdfOutput();
 		pdf1.setParam(100, -100, 100);
 		pdf1.openFile(file + ".txt");
@@ -290,6 +311,7 @@ public class ProDeltaNSimulationInput {
 		output_en.closeFile();
 		output_v.closeFile();
 		output_var.closeFile();
+		output_ordv.closeFile();
 		pdf1.closeFile();
 		pdf2.closeFile();
 		pdf_v.closeFile();
@@ -342,6 +364,7 @@ public class ProDeltaNSimulationInput {
 			outputCor();
 			outputN();
 		}
+		outputOrderVar();
 		outputCumPdf();
 		outputPdfV();
 		outputV();
@@ -375,9 +398,7 @@ public class ProDeltaNSimulationInput {
 		int pt = index % velocity.length;
 		velocity[pt] = velocity[(pt + velocity.length - 1) % velocity.length] + current_v;
 		lv.add((velocity[pt] - velocity[(pt + velocity.length - TNUM) % velocity.length]));
-		if (current_v > 1e-3)
-			output_d.write(tot + " " + (ap2[1].n - ap2[0].n) + " " + (ap[1].n - ap[0].n) + " " + t0 + " " + t1 + " "
-					+ t2 + " " + current_v + "\n");
+
 		AT();
 		BT();
 		Next(index);
@@ -421,9 +442,11 @@ public class ProDeltaNSimulationInput {
 	}
 
 	void Next(int index) {
+		BINDEX = index % ord.length;
 		double g[] = new double[ap.length];
 		for (int i = 0; i < ap.length - 1; i++)
 			g[i] = ap[i].n;
+		int vt = (int) (lv.get(lv.size() - 1) / 2e-5);
 		for (int i = 0; i < ap.length - 1; i++) {
 			double tmp = ap[i].n;
 			double th = ap[i].h;
@@ -440,13 +463,21 @@ public class ProDeltaNSimulationInput {
 				double delt_n = ap[i].n - ord[(index + ord.length - TNUM * num) % ord.length][i];
 				ltc2.get(j).get(i).add(delt_v / (TNUM * num), delt_n);
 			}
-			// output_d.write(ap[i].n + " ");
+			if (vt + 100 >= 0 && vt + 100 < llv.get(i).size()) {
+				double t1 = ap[i].n - ord[(BINDEX + ord.length - 1000) % ord.length][i];
+				llv.get(i).get(vt + 100).add(t1);
+			}
+			if (i % 10 == 0)
+				output_d.write(ap[i].n + " ");
 		}
-		// output_d.write("\n");
+		output_d.write("\n");
 		// System.out.println(index + "\t" + ap[10].n + "\t" + ap[11].n);
 		// output_d.write("\n");
 
-		BINDEX = index % ord.length;// (BINDEX + 1) % ord.length;
+		// BINDEX = index % ord.length;// (BINDEX + 1) % ord.length;
+		// for (int i = 0; i < ap.length - 1; i++)
+		// for (int j = 0; j < ap.length - 1; j++)
+		// mt[i][j].add(ap[i].n - g[i], ap[j].n - g[j]);
 		for (int i = 0; i < NN; i++)
 			ord[BINDEX][i] = ap[i].n;
 		int p = (BINDEX + ord.length - TNUM) % ord.length;
@@ -553,16 +584,30 @@ public class ProDeltaNSimulationInput {
 	}
 
 	void outputCorPos() {
+		cp = new double[mt.length];
+		double a[][] = new double[mt.length][mt.length];
 		for (int i = 0; i < mt.length - 1; i++) {
 			for (int j = 0; j < mt.length - 1; j++)
-				output_corpos.write(mt[i][j].calCorrelation() + " ");
-			output_corpos.write("\n");
+				a[i][j] = (mt[i][j].calCorrelation());
 		}
-		for (int i = 0; i < mt2.length - 1; i++) {
-			for (int j = 0; j < mt2.length - 1; j++)
-				output_corpos.write(mt2[i][j].calCorrelation() + " ");
-			output_corpos.write("\n");
+		for (int i = 0; i < mt.length; i++) {
+			double t1 = 0, t2 = 0;
+			for (int j = 0; j < mt.length; j++)
+				if (j > i + 5 || j < i - 5) {
+					t1 += Math.abs(a[i][j]);
+					t2++;
+				}
+			double t3;
+			if (i == 0)
+				t3 = Math.abs(a[i][i + 1]);
+			else if (i == mt.length - 1)
+				t3 = Math.abs(a[i][i - 1]);
+			else
+				t3 = (Math.abs(a[i][i - 1]) + Math.abs(a[i][i + 1])) / 2.0;
+			cp[i] = t3 / (t1 / (t2 + 1e-8));
+			output_corpos.write(cp[i] + " ");
 		}
+		output_corpos.write("\n");
 	}
 
 	void outputCor() {
@@ -604,6 +649,13 @@ public class ProDeltaNSimulationInput {
 		ck.cal();
 		pdf_v.output.write(ck.k + " " + ck.b + " " + ck.n + "\n");
 
+		ck.clear();
+		for (int i = 0; i < tmp.length; i++)
+			if (tmp[i].t2 > 10 && tmp[i].t2 < 10000)
+				ck.add(Math.log10(tmp[i].t1), Math.log10(tmp[i].t2));
+		ck.cal();
+		pdf_v.output.write(ck.k + " " + ck.b + " " + ck.n + "\n");
+
 	}
 
 	void outputCumPdf() {
@@ -624,4 +676,26 @@ public class ProDeltaNSimulationInput {
 		// }
 	}
 
+	void outputOrderVar() {
+		for (int i = 0; i < llv.size(); i++) {
+			for (int j = 0; j < llv.get(i).size(); j++)
+				output_ordv.write(llv.get(i).get(j).cal2() + " ");
+			output_ordv.write("\n");
+		}
+		for (int i = 0; i < llv.size(); i++) {
+			for (int j = 0; j < llv.get(i).size(); j++)
+				output_ordv.write(llv.get(i).get(j).cal2() * llv.get(i).get(j).n1 / (llv.get(i).get(j).n + 1e-8) + " ");
+			output_ordv.write("\n");
+		}
+		for (int i = 0; i < llv.size(); i++) {
+			for (int j = 0; j < llv.get(i).size(); j++)
+				output_ordv.write(llv.get(i).get(j).cal2() * llv.get(i).get(j).n2 / (llv.get(i).get(j).n + 1e-8) + " ");
+			output_ordv.write("\n");
+		}
+		for (int i = 0; i < llv.size(); i++) {
+			for (int j = 0; j < llv.get(i).size(); j++)
+				output_ordv.write(llv.get(i).get(j).cal2() * llv.get(i).get(j).n3 / (llv.get(i).get(j).n + 1e-8) + " ");
+			output_ordv.write("\n");
+		}
+	}
 }

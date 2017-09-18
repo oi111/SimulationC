@@ -9,6 +9,10 @@ public class CalK {
 		x2 = xy = sumx = sumy = n = 0;
 	}
 
+	public void clear() {
+		x2 = xy = sumx = sumy = n = 0;
+	}
+
 	public void add(double x, double y) {
 		n++;
 		xy += x * y;

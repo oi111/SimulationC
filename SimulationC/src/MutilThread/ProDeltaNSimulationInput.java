@@ -598,7 +598,7 @@ public class ProDeltaNSimulationInput implements Runnable {
 		TK tmp[] = pdf_v.calLogPdf2(lv);
 		CalK ck = new CalK();
 		for (int i = 0; i < tmp.length; i++)
-			if (tmp[i].t2 > 1 && tmp[i].t2 < 1000)
+			if (tmp[i].t2 > 1 && tmp[i].t2 < 100)
 				ck.add(Math.log10(tmp[i].t1), Math.log10(tmp[i].t2));
 		ck.cal();
 		pdf_v.output.write(ck.k + " " + ck.b + " " + ck.n + "\n");

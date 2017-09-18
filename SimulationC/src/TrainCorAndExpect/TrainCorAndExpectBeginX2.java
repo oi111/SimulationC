@@ -1,26 +1,34 @@
-package Train;
+package TrainCorAndExpect;
 
 import Data.TK;
+import OrderData.CorVAndDeltaN;
 import OrderData.Expect;
 import Uti.InputFile;
 import Uti.OutputFile;
+import Uti.Uti;
 
-public class TrainExpect {
+public class TrainCorAndExpectBeginX2 {
 	double DeltaX = 5e-5;
+	double Zlimit = 1;
 	OutputFile output;
+	double ZRate = 0.1;
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		TrainExpect t = new TrainExpect();
+		TrainCorAndExpectBeginX2 t = new TrainCorAndExpectBeginX2();
 		// t.process(30, 400, 1000, 30, 10, 0.01, 0.00005, 0.000000001, 5000,
 		// 101, 2, 0.6, 0.001, 1, 10000, 150, 50, 5000,
 		// 0.0002, 2);
+		// t.process(30, 400, 1000, 30, 10, 0.01, 0.00005, 0.0000000008, 1000,
+		// 100, 2, 0.6, 0.02, 1, 50000, 200, 50, 5000,
+		// 0.00007, 2, 1, 1, 1.01, 1000);
 		t.process(Double.valueOf(args[0]), Double.valueOf(args[1]), Double.valueOf(args[2]), Double.valueOf(args[3]),
 				Double.valueOf(args[4]), Double.valueOf(args[5]), Double.valueOf(args[6]), Double.valueOf(args[7]),
 				Double.valueOf(args[8]), Integer.valueOf(args[9]), Integer.valueOf(args[10]), Double.valueOf(args[11]),
 				Double.valueOf(args[12]), Double.valueOf(args[13]), Integer.valueOf(args[14]),
 				Integer.valueOf(args[15]), Integer.valueOf(args[16]), Integer.valueOf(args[17]),
-				Double.valueOf(args[18]), Double.valueOf(args[19]), Integer.valueOf(args[20]));
+				Double.valueOf(args[18]), Double.valueOf(args[19]), Double.valueOf(args[20]), Integer.valueOf(args[21]),
+				Double.valueOf(args[22]), Integer.valueOf(args[23]));
 	}
 
 	TK[] getFirstExpect(int nn, double sigmak) {
@@ -34,27 +42,41 @@ public class TrainExpect {
 		String pt1[] = line1.split(" ");
 		String line2 = input.read();
 		String pt2[] = line2.split(" ");
+		String line3 = input.read();
+		String pt3[] = line3.split(" ");
 		for (int i = 0; i < nn; i++) {
 			ret[i] = new TK(0, 0);
+			// ret[i].t2 = Double.valueOf(pt2[i]);
 			ret[i].t2 = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i + 1) * DeltaX + g[1], 1)
 					/ Math.pow((i + 1) * DeltaX + g[5], 1.1) / 1.2 * sigmak;
-			ret[i].t1 = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i + 1) * DeltaX + g[1], g[2])
-					* Math.pow((i + 1) * DeltaX + g[3], g[4]) / Math.pow((i + 1) * DeltaX + g[5], g[2] + g[4] + 3)
-					* g[7];
+			ret[i].t1 = Double.valueOf(Expect.e[i]);
 			ret[i].t2 = Double.valueOf(pt2[i]);
 			ret[i].t1 = Double.valueOf(pt1[i]);
 		}
+		input.closeFile();
 		return ret;
 	}
 
-	void getNextInput(TK a[], double b[]) {
-		for (int i = 0; i < a.length; i++)
-			a[i].t1 = (a[i].t1 * Expect.e[i] / b[i]);
+	void getNextInputExpect(TK p[], double a[]) {
+		// Uti.getSoft(b);
+		for (int i = 0; i < p.length; i++) {
+			p[i].t1 = (p[i].t1 * Expect.e[i] / a[i]);
+		}
+	}
+
+	void getNextInputCor(TK p[], double b[]) {
+		Uti.getSoft(b);
+		for (int i = 0; i < p.length; i++) {
+			if (CorVAndDeltaN.c[i] * Zlimit > b[i])
+				p[i].t2 = p[i].t2 * ZRate + 0.001;
+			else
+				p[i].t2 /= ZRate;
+		}
 	}
 
 	void init() {
 		output = new OutputFile();
-		output.setFileName("OutExpect.txt");
+		output.setFileName("CorAndExpect.txt");
 		output.openFile();
 	}
 
@@ -64,15 +86,23 @@ public class TrainExpect {
 
 	void process(double alphad, double alphain, double alphak, double alphaout, double cc, double deltat, double deltax,
 			double dk, double maxval, int nn, int num, double salpha, double sigmak, double sigmastable, int t,
-			int tmax, int tn, int ts, double vk, double vsigma, int zz) {
+			int tmax, int tn, int ts, double vk, double vsigma, double zlimit, int zn, double zrate, int zz) {
+		this.ZRate = zrate;
+		this.Zlimit = zlimit;
 		init();
 		TK input[] = getFirstExpect(nn, sigmak);
-		for (int i = 0; i < zz; i++) {
-			ProDeltaNSimulationForTrainExpect p = new ProDeltaNSimulationForTrainExpect();
+		for (int i = 1; i < zz; i++) {
+			SimulationForTrainCorAndExpect p = new SimulationForTrainCorAndExpect();
 			p.process(alphad, alphain, alphak, alphaout, cc, deltat, deltax, dk, maxval, nn, num, salpha, sigmak,
 					sigmastable, t, tmax, tn, ts, vk, vsigma, input);
-			getNextInput(input, p.getOutputExpect());
+			if (i % 20 == 0)
+				Uti.getSoft2(input);
+			if (i % 20 > 10)
+				getNextInputExpect(input, p.getOutputExpect());
+			else
+				getNextInputCor(input, p.getOutputCor(zn));
 			output(p.getOutputExpect());
+			output(p.getOutputCor(zn));
 			output(input);
 		}
 		close();
@@ -81,6 +111,9 @@ public class TrainExpect {
 	void output(TK input[]) {
 		for (int i = 0; i < input.length; i++)
 			output.write(input[i].t1 + " ");
+		output.write("\n");
+		for (int i = 0; i < input.length; i++)
+			output.write(input[i].t2 + " ");
 		output.write("\n");
 	}
 

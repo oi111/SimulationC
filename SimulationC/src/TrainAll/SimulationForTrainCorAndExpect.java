@@ -1,4 +1,4 @@
-package TrainCor;
+package TrainAll;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,15 +6,15 @@ import java.util.Random;
 
 import Data.PosInfo;
 import Data.TCor;
+import Data.THR;
 import Data.TK;
-import Data.Var;
 import Uti.OutputFile;
 import Uti.PdfOutput;
 import Uti.ProduceStableDistribution;
 import cern.jet.random.StudentT;
 import cern.jet.random.engine.RandomEngine;
 
-public class ProDeltaNSimulationForTrainCor {
+public class SimulationForTrainCorAndExpect {
 	int NUM_COR = 10;
 	int NN = 3;
 	int Num = 10;
@@ -42,7 +42,7 @@ public class ProDeltaNSimulationForTrainCor {
 	// int AllT;
 	PosInfo ap[], ap2[];
 	ProduceStableDistribution ps;
-	List<List<Double>> lld = new ArrayList<List<Double>>();
+	// List<List<Double>> lld = new ArrayList<List<Double>>();
 	List<List<Double>> lln = new ArrayList<List<Double>>();
 	List<Double> lv = new ArrayList<Double>();
 	List<TK> ltk = new ArrayList<TK>();
@@ -50,15 +50,15 @@ public class ProDeltaNSimulationForTrainCor {
 	List<TK> p2 = new ArrayList<TK>();
 	List<TK> p3 = new ArrayList<TK>();
 	List<TK> p4 = new ArrayList<TK>();
-	List<TK> r1 = new ArrayList<TK>();
-	List<TK> r2 = new ArrayList<TK>();
-	List<TK> r3 = new ArrayList<TK>();
-	List<List<Var>> lvar = new ArrayList<List<Var>>();
-	double velocity[];
 	TCor mt[][];
-	TCor mt2[][];
-	TK llt[][];
-	TK llt2[][];
+	double cp[];
+
+	// List<List<Var>> lvar = new ArrayList<List<Var>>();
+	double velocity[];
+	// TCor mt[][];
+	// TCor mt2[][];
+	// TK llt[][];
+	// TK llt2[][];
 	double ord[][];
 	List<TCor> ltc = new ArrayList<TCor>();
 	List<List<TCor>> ltc2 = new ArrayList<List<TCor>>();
@@ -71,23 +71,7 @@ public class ProDeltaNSimulationForTrainCor {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		ProDeltaNSimulationForTrainCor pds = new ProDeltaNSimulationForTrainCor();
-
-		// pds.process(30, 400, 1000, 30, 10, 0.01, 0.00005, 0.00000000045,
-		// 8000000, 401, 2, 0.0001, 100000, 4000, 50,
-		// 1000, 0.00001, 1);
-
-		// pds.process(Double.valueOf(args[0]), Double.valueOf(args[1]),
-		// Double.valueOf(args[2]), Double.valueOf(args[3]),
-		// Double.valueOf(args[4]), Double.valueOf(args[5]),
-		// Double.valueOf(args[6]), Double.valueOf(args[7]),
-		// Double.valueOf(args[8]), Integer.valueOf(args[9]),
-		// Integer.valueOf(args[10]), Double.valueOf(args[11]),
-		// Double.valueOf(args[12]), Double.valueOf(args[13]),
-		// Integer.valueOf(args[14]),
-		// Integer.valueOf(args[15]), Integer.valueOf(args[16]),
-		// Integer.valueOf(args[17]),
-		// Double.valueOf(args[18]), Double.valueOf(args[19]));
+		SimulationForTrainCorAndExpect pds = new SimulationForTrainCorAndExpect();
 
 	}
 
@@ -101,33 +85,29 @@ public class ProDeltaNSimulationForTrainCor {
 	}
 
 	void initStatic() {
-		lld.clear();
+		// lld.clear();
 		lln.clear();
 		ltk.clear();
 		p1.clear();
 		p2.clear();
 		p3.clear();
 		p4.clear();
-		r1.clear();
-		r2.clear();
-		r3.clear();
+
 		ltc.clear();
 		ltc2.clear();
 		lv.clear();
-		lvar.clear();
+		// lvar.clear();
 		mt = new TCor[NN][NN];
-		mt2 = new TCor[NN][NN];
+		// mt2 = new TCor[NN][NN];
 		for (int i = 0; i < NN; i++) {
-			lld.add(new ArrayList<Double>());
+			// lld.add(new ArrayList<Double>());
 			lln.add(new ArrayList<Double>());
 			ltk.add(new TK(0, 0));
 			p1.add(new TK(0, 0));
 			p2.add(new TK(0, 0));
 			p3.add(new TK(0, 0));
 			p4.add(new TK(0, 0));
-			r1.add(new TK(0, 0));
-			r2.add(new TK(0, 0));
-			r3.add(new TK(0, 0));
+
 			ltc.add(new TCor());
 
 		}
@@ -138,24 +118,9 @@ public class ProDeltaNSimulationForTrainCor {
 			ltc2.add(tmp);
 		}
 		for (int i = 0; i < mt.length; i++)
-			for (int j = 0; j < mt[i].length; j++) {
+			for (int j = 0; j < mt[i].length; j++)
 				mt[i][j] = new TCor();
-				mt2[i][j] = new TCor();
-			}
-		llt = new TK[NN / BIN + 1][LEN];
-		for (int i = 0; i < llt.length; i++)
-			for (int j = 0; j < llt[i].length; j++)
-				llt[i][j] = new TK(0, 0);
-		llt2 = new TK[NN / BIN + 1][LEN];
-		for (int i = 0; i < llt2.length; i++)
-			for (int j = 0; j < llt2[i].length; j++)
-				llt2[i][j] = new TK(0, 0);
-		for (int i = 0; i < 200; i++) {
-			List<Var> tmp = new ArrayList<Var>();
-			for (int j = 0; j < NN; j++)
-				tmp.add(new Var());
-			lvar.add(tmp);
-		}
+
 	}
 
 	PosInfo[] initOther() {
@@ -182,10 +147,11 @@ public class ProDeltaNSimulationForTrainCor {
 		}
 	}
 
-	void setF(TK[] a, PosInfo ap[]) {
+	void setF(THR[] a, PosInfo ap[]) {
 		for (int i = 0; i < ap.length; i++) {
 			ap[i].fout = a[i].t2;
 			ap[i].fin = a[i].t1 * ap[i].fout;
+			ap[i].d = a[i].t3;
 		}
 	}
 
@@ -193,56 +159,12 @@ public class ProDeltaNSimulationForTrainCor {
 		double g[] = { 0, 1.394993763107846E-4, 2.7685714424764445, 0.015449367040358618, 3.0439195762885527,
 				0.0017350596397439685, 21.622820373026034, 2.4235037612854265E-8 };
 		for (int i = 0; i < ap.length; i++) {
-			// ap[i].fin = Input.Data3.a[i * 4];
-			// ap[i].fout = Input.Data3.b[i * 4];
-			// ap[i].fout = Math.exp(-AlphaOut * (i + 1) * DeltaX) * Math.pow((i
-			// + 1) * DeltaX, 0.03) * 1.24;
-			// ap[i].fin = ap[i].fout * Math.pow((i + 1) * DeltaX + 0.00003, 4)
-			// / Math.pow((i + 1) * DeltaX + 0.0004, 7)
-			// * Math.exp(-100 * (i + 1) * DeltaX) / 1000000 / 3;
 			ap[i].fout = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i + 1) * DeltaX + g[1], 1)
 					/ Math.pow((i + 1) * DeltaX + g[5], 1.1) / 1.2 * SigmaK;
 			ap[i].fin = Math.exp(-g[6] * (i + 1) * DeltaX) * Math.pow((i + 1) * DeltaX + g[1], g[2])
 					* Math.pow((i + 1) * DeltaX + g[3], g[4]) / Math.pow((i + 1) * DeltaX + g[5], g[2] + g[4] + 3)
 					* g[7] * ap[i].fout;
-			// ap[i].fout = Math.exp(-25 * (i + 1) * DeltaX) * Math.pow((i + 1)
-			// * DeltaX + 0.0001, 1)
-			// / Math.pow((i + 1) * DeltaX + 0.000515, 1.1) / 1.47 * SigmaK;
-			// ap[i].fin = Math.exp(-100 * (i + 1) * DeltaX) * Math.pow((i + 1)
-			// * DeltaX + 0.0001, 4)
-			// / Math.pow((i + 1) * DeltaX + 0.000515, 7) * 1e-6 / 3 *
-			// ap[i].fout;
-			// System.out.print
-			// ap[i].fout = (Math.pow((i + 1) * DeltaX, 1) + 0.0003)
-			// / (Math.pow(10 * (i + 1) * DeltaX + 1, 1) * Math.pow((i + 1) *
-			// DeltaX + 0.002, 1.3)) / 3.2;
-			// ap[i].fin = ap[i].fout * (Math.pow((i + 1) * DeltaX, 1))
-			// / (Math.pow(100 * (i + 1) * DeltaX + 1, 1) * Math.pow((i + 1) *
-			// DeltaX + 0.002, 3)) * 4 * 1e-4;
-			// ap[i].fin = ap[i].fout * (Math.pow((i + 1) * DeltaX, 1))
-			// / (Math.pow(1000 * (i + 1) * DeltaX + 1, 1) * Math.pow((i + 1) *
-			// DeltaX + 0.001, 3)) * 1.5 * 1e-4;
-			// ap[i].fin = (Math.pow((i + 1) * DeltaX + 0.002, -4) * 2 * 1e-11)
-			// / ((Math.pow((i + 1) * DeltaX, -1) + 100) * 1e-5);
-			// ap[i].fout = Math.exp(-AlphaOut * (i + 1) * DeltaX) * Math.pow((i
-			// + 1) * DeltaX, 0.03) * 1.24;
-			// System.out.println(ap[i].fin + " " + ap[i].fout);
-			// ap[i].fin = Math.pow((i + 1) * DeltaX + 0.01, -4) * 1e-7;
-			// ap[i].fout = Math.pow((i + 1) * DeltaX + 0.01, -1) * 1e-2;
-			// ap[i].fin = Math.exp(-AlphaIn * (i + 1) * DeltaX) *
-			// Math.pow(DeltaX * (i + 1), 0.3) * 100;
-			// ap[i].fout = Math.exp(-AlphaOut * (i + 1) * DeltaX) *
-			// Math.pow(DeltaX * (i + 1), 0.03) * 1.24;
-			// ap[i].fin = Math.exp(-AlphaIn * (i + 1) * DeltaX) *
-			// Math.pow(DeltaX * (i + 1), 4) * 1e15;
-			// ap[i].fout = Math.exp(-AlphaOut * (i + 1) * DeltaX) * DeltaX * (i
-			// + 1) * 2500;
-			// ap[i].fin = Math.exp((-AlphaIn + AlphaK * 2 * DeltaX * (i + 1)) *
-			// (i + 1) * DeltaX)
-			// * Math.pow(DeltaX * (i + 1), 4) * 1e15;
-			// ap[i].fout = Math.exp((-AlphaOut + AlphaK * 1.8 * DeltaX * (i +
-			// 1)) * (i + 1) * DeltaX) * DeltaX * (i + 1)
-			// * 2500;
+
 		}
 	}
 
@@ -343,7 +265,7 @@ public class ProDeltaNSimulationForTrainCor {
 
 	void process(double alphad, double alphain, double alphak, double alphaout, double cc, double deltat, double deltax,
 			double dk, double maxval, int nn, int num, double salpha, double sigmak, double sigmastable, int t,
-			int tmax, int tn, int ts, double vk, double vsigma, TK expect[]) {
+			int tmax, int tn, int ts, double vk, double vsigma, THR expect[]) {
 		this.AlphaD = alphad;
 		this.AlphaIn = alphain;
 		this.AlphaOut = alphaout;
@@ -393,7 +315,6 @@ public class ProDeltaNSimulationForTrainCor {
 		outputCumPdf();
 		outputPdfV();
 		outputV();
-		outputVar();
 		output(file);
 		outputExampleN();
 		closeOutput();
@@ -490,6 +411,9 @@ public class ProDeltaNSimulationForTrainCor {
 			}
 			// output_d.write(ap[i].n + " ");
 		}
+		for (int i = 0; i < ap.length - 1; i++)
+			for (int j = 0; j < ap.length - 1; j++)
+				mt[i][j].add(ap[i].n - g[i], ap[j].n - g[j]);
 		// output_d.write("\n");
 		// System.out.println(index + "\t" + ap[10].n + "\t" + ap[11].n);
 		// output_d.write("\n");
@@ -547,16 +471,20 @@ public class ProDeltaNSimulationForTrainCor {
 		return ret;
 	}
 
+	double[] getOutputCorPos() {
+		double ret[] = new double[cp.length];
+		for (int i = 0; i < cp.length; i++)
+			ret[i] = cp[i];
+		return ret;
+	}
+
 	double calX2(double val) {
 
 		return (1 - Math.exp(-val * val * this.CC)) / this.CC;
 	}
 
 	void output(String file) {
-		for (int i = 0; i < ap.length - 1; i++) {
-			pdf1.calPdf(lld.get(i));
-			pdf2.calLogPdf(lld.get(i));
-		}
+
 	}
 
 	void outputExampleN() {
@@ -585,9 +513,6 @@ public class ProDeltaNSimulationForTrainCor {
 			output_expect.write(ltk.get(i).t2 / (ltk.get(i).t1 + 1e-8) + " ");
 		}
 		output_expect.write("\n");
-		for (int i = 0; i < lld.size() - 1; i++)
-			output_expect.write(Uti.Uti.calAverage(lld.get(i)) + " ");
-		output_expect.write("\n");
 	}
 
 	void outputP() {
@@ -607,27 +532,33 @@ public class ProDeltaNSimulationForTrainCor {
 			output_p.write(p4.get(i).t2 / (p4.get(i).t1 + 1e-8) + " ");
 		output_p.write("\n");
 
-		for (int i = 0; i < r1.size() - 1; i++)
-			output_p.write(r1.get(i).t2 / (r1.get(i).t1 + 1e-8) + " ");
-		output_p.write("\n");
-
-		for (int i = 0; i < r2.size() - 1; i++)
-			output_p.write(r2.get(i).t2 / (r2.get(i).t1 + 1e-8) + " ");
-		output_p.write("\n");
-
 	}
 
 	void outputCorPos() {
+		cp = new double[mt.length];
+		double a[][] = new double[mt.length][mt.length];
 		for (int i = 0; i < mt.length - 1; i++) {
 			for (int j = 0; j < mt.length - 1; j++)
-				output_corpos.write(mt[i][j].calCorrelation() + " ");
-			output_corpos.write("\n");
+				a[i][j] = (mt[i][j].calCorrelation());
 		}
-		for (int i = 0; i < mt2.length - 1; i++) {
-			for (int j = 0; j < mt2.length - 1; j++)
-				output_corpos.write(mt2[i][j].calCorrelation() + " ");
-			output_corpos.write("\n");
+		for (int i = 0; i < mt.length; i++) {
+			double t1 = 0, t2 = 0;
+			for (int j = 0; j < mt.length; j++)
+				if (j > i + 5 || j < i - 5) {
+					t1 += Math.abs(a[i][j]);
+					t2++;
+				}
+			double t3;
+			if (i == 0)
+				t3 = Math.abs(a[i][i + 1]);
+			else if (i == mt.length - 1)
+				t3 = Math.abs(a[i][i - 1]);
+			else
+				t3 = (Math.abs(a[i][i - 1]) + Math.abs(a[i][i + 1])) / 2.0;
+			cp[i] = t3 / (t1 / (t2 + 1e-8));
+			output_corpos.write(cp[i] + " ");
 		}
+		output_corpos.write("\n");
 	}
 
 	void outputCor() {
@@ -642,16 +573,7 @@ public class ProDeltaNSimulationForTrainCor {
 	}
 
 	void outputN() {
-		for (int i = 0; i < llt.length; i++) {
-			for (int j = 0; j < llt[i].length; j++)
-				output_n.write(llt[i][j].t2 / (llt[i][j].t1 + 1e-8) + " ");
-			output_n.write("\n");
-		}
-		for (int i = 0; i < llt.length; i++) {
-			for (int j = 0; j < llt[i].length; j++)
-				output_n.write((llt[i][j].t1) + " ");
-			output_n.write("\n");
-		}
+
 	}
 
 	void outputV() {
@@ -672,14 +594,6 @@ public class ProDeltaNSimulationForTrainCor {
 		pdf.calCumLog(lv, ld);
 		pdf.calCumLog(lv);
 		pdf.closeFile();
-	}
-
-	void outputVar() {
-		// for (int i = 0; i < lvar.size(); i++) {
-		// for (int j = 0; j < lvar.get(i).size(); j++)
-		// output_var.write(lvar.get(i).get(j).cal2() + " ");
-		// output_var.write("\n");
-		// }
 	}
 
 }
